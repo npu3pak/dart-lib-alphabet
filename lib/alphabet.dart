@@ -1,10 +1,107 @@
 library alphabet;
 
+import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
-const whiteTile = 'W';
+main() {
+  // TODO: Make proper port binding mechanism without race conditions
+  SendPort renderingSendPort;
+  SendPort logicSendPort;
+
+  var inputReceivePort = ReceivePort();
+  inputReceivePort.listen((key) {
+    logicSendPort.send(key);
+  });
+
+  var renderingReceivePort = ReceivePort();
+  renderingReceivePort.listen((msg) {
+    if (msg is SendPort) {
+      renderingSendPort = msg;
+      Isolate.spawn(runInputIsolate, inputReceivePort.sendPort);
+    }
+  });
+
+  var logicReceivePort = ReceivePort();
+  logicReceivePort.listen((msg) {
+    if (msg is SendPort) {
+      logicSendPort = msg;
+      Isolate.spawn(runRenderingIsolate, renderingReceivePort.sendPort);
+    } else if (msg is GameLogic) {
+      renderingSendPort.send(msg);
+    }
+  });
+
+  Isolate.spawn(runGameLogicIsolate, logicReceivePort.sendPort);
+}
+
+// Game Logic
+
+class GameLogic {
+  var lastKeyCode = -1;
+}
+
+runGameLogicIsolate(SendPort sendPort) {
+  var logic = GameLogic();
+
+  var receivePort = ReceivePort();
+  sendPort.send(receivePort.sendPort);
+
+  receivePort.listen((keyCode) {
+    logic.lastKeyCode = keyCode;
+  });
+
+  Timer.periodic(Duration(milliseconds: 1000~/25), (_) {
+    sendPort.send(logic);
+  });
+}
+
+// Input
+
+runInputIsolate(SendPort sendPort) {
+  keysStream().forEach((key) {
+    sendPort.send(key);
+  });
+}
+
+Stream<int> keysStream() async* {
+  stdin.lineMode = false;
+  stdin.echoMode = false;
+  while(true) {
+    yield stdin.readByteSync();
+  }
+}
+
+// Rendering
+
+runRenderingIsolate(SendPort sendPort) {
+  var receivePort = ReceivePort();
+  sendPort.send(receivePort.sendPort);
+
+  const screenHeight = 11;
+  const screenWidth = 40;
+  var enemy = ScreenBuffer.fromFile("res/enemy.txt", width: 5, height: 6);
+  var screen = ScreenBuffer(width: screenWidth, height: screenHeight);
+  var frameCounter = FrameCounter();
+  
+  receivePort.listen((msg) {
+    if (msg is GameLogic) {
+      var lastKeyCode = msg.lastKeyCode;
+      screen
+        ..clear()
+        ..addBuffer(enemy, 0, 4)
+        ..addBuffer(enemy, 7, 2)
+        ..addBuffer(enemy, 14, 1)
+        ..addText("keycode: $lastKeyCode", 0, 1)
+        ..addText("fps: ${frameCounter.measureFps()}", 0, 0)
+        ..printValue();
+    }
+  });
+}
 
 class ScreenBuffer {
+  static const whiteTile = 'W';
+
   var width, height;
   var value = List<List<String>>();
 
@@ -75,26 +172,5 @@ class FrameCounter {
       lastFrameTime = DateTime.now().millisecondsSinceEpoch;
     }
     return rate;
-  }
-}
-
-main() {
-  const screenHeight = 11;
-  const screenWidth = 40;
-  const frameRate = 25;
-
-  var enemy = ScreenBuffer.fromFile("res/enemy.txt", width: 5, height: 6);
-  var screen = ScreenBuffer(width: screenWidth, height: screenHeight);
-  var frameCounter = FrameCounter();
-
-  while (true) {
-    sleep(Duration(milliseconds: 1000~/frameRate));
-    screen
-      ..clear()
-      ..addBuffer(enemy, 0, 4)
-      ..addBuffer(enemy, 7, 2)
-      ..addBuffer(enemy, 14, 1)
-      ..addText("${frameCounter.measureFps()}", 0, 0)
-      ..printValue();
   }
 }
