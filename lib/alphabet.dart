@@ -4,61 +4,63 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-main() {
-  // TODO: Make proper port binding mechanism without race conditions
-  SendPort renderingSendPort;
-  SendPort logicSendPort;
+main() async {
+  var input = await IsolateEnvironment.spawn(runInput);
+  var logic = await IsolateEnvironment.spawn(runGameLogic);
+  var rendering = await IsolateEnvironment.spawn(runRendering);
 
-  var inputReceivePort = ReceivePort();
-  inputReceivePort.listen((key) {
-    logicSendPort.send(key);
+  input.receivePort.listen((key) {
+    logic.sendPort.send(key);
   });
 
-  var renderingReceivePort = ReceivePort();
-  renderingReceivePort.listen((msg) {
-    if (msg is SendPort) {
-      renderingSendPort = msg;
-      Isolate.spawn(runInputIsolate, inputReceivePort.sendPort);
-    }
+  logic.receivePort.listen((gameLogic) {
+    rendering.sendPort.send(gameLogic);
   });
-
-  var logicReceivePort = ReceivePort();
-  logicReceivePort.listen((msg) {
-    if (msg is SendPort) {
-      logicSendPort = msg;
-      Isolate.spawn(runRenderingIsolate, renderingReceivePort.sendPort);
-    } else if (msg is GameLogic) {
-      renderingSendPort.send(msg);
-    }
-  });
-
-  Isolate.spawn(runGameLogicIsolate, logicReceivePort.sendPort);
 }
 
-// Game Logic
+typedef IsolateEnvironmentEntryPoint(SendPort sendPort, ReceivePort receivePort);
 
-class GameLogic {
-  var lastKeyCode = -1;
-}
+class IsolateEnvironment {
 
-runGameLogicIsolate(SendPort sendPort) {
-  var logic = GameLogic();
+  Isolate isolate;
+  ReceivePort receivePort;
+  SendPort sendPort;
 
-  var receivePort = ReceivePort();
-  sendPort.send(receivePort.sendPort);
+  IsolateEnvironment._(this.isolate, this.receivePort, this.sendPort);
 
-  receivePort.listen((keyCode) {
-    logic.lastKeyCode = keyCode;
-  });
+  static Future<IsolateEnvironment> spawn(IsolateEnvironmentEntryPoint entryPoint) async {
+    var completer = Completer<IsolateEnvironment>();
+    var isolateReceivePort = ReceivePort();
+    var envReceivePort = ReceivePort();
 
-  Timer.periodic(Duration(milliseconds: 1000~/25), (_) {
-    sendPort.send(logic);
-  });
+    Isolate isolate;
+    
+    isolateReceivePort.listen((msg) {
+      if (msg is SendPort) {
+        completer.complete(IsolateEnvironment._(isolate, envReceivePort, msg));
+      } else {
+        envReceivePort.sendPort.send(msg);
+      }
+    });
+
+    var args = [entryPoint, isolateReceivePort.sendPort];
+    isolate = await Isolate.spawn(isolateEntryPoint, args);
+    return completer.future;
+  }
+
+  static void isolateEntryPoint(List args) {
+    IsolateEnvironmentEntryPoint entryPoint = args[0];
+    SendPort sendPort = args[1];
+
+    var receivePort = ReceivePort();
+    sendPort.send(receivePort.sendPort);
+    entryPoint(sendPort, receivePort);
+  }
 }
 
 // Input
 
-runInputIsolate(SendPort sendPort) {
+runInput(SendPort sendPort, ReceivePort receivePort) {
   keysStream().forEach((key) {
     sendPort.send(key);
   });
@@ -72,12 +74,27 @@ Stream<int> keysStream() async* {
   }
 }
 
+// Game Logic
+
+class GameLogic {
+  var lastKeyCode = -1;
+}
+
+runGameLogic(SendPort sendPort, ReceivePort receivePort) {
+  var logic = GameLogic();
+
+  receivePort.listen((keyCode) {
+    logic.lastKeyCode = keyCode;
+  });
+
+  Timer.periodic(Duration(milliseconds: 1000~/25), (_) {
+    sendPort.send(logic);
+  });
+}
+
 // Rendering
 
-runRenderingIsolate(SendPort sendPort) {
-  var receivePort = ReceivePort();
-  sendPort.send(receivePort.sendPort);
-
+runRendering(SendPort sendPort, ReceivePort receivePort) {
   const screenHeight = 11;
   const screenWidth = 40;
   var enemy = ScreenBuffer.fromFile("res/enemy.txt", width: 5, height: 6);
