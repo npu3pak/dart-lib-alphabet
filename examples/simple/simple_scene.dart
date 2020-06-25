@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:alphabet/alphabet.dart';
 
 main() async {
-  var scene = Scene(ExampleSceneLogic(), ExampleSceneRenderer());
+  var scene = Scene(SimpleSceneLogic(), SimpleSceneRenderer());
   scene.startScene();
 }
 
-class ExampleSceneState extends SceneState {
+class SimpleSceneState extends SceneState {
   String lastKeyCode;
   DateTime lastTime;
 }
 
-class ExampleSceneLogic extends SceneLogic<ExampleSceneState> {
-  var state = ExampleSceneState();
+class SimpleSceneLogic extends SceneLogic<SimpleSceneState> {
+  var state = SimpleSceneState();
 
   @override
   startScene() {
@@ -22,11 +22,6 @@ class ExampleSceneLogic extends SceneLogic<ExampleSceneState> {
     Timer.periodic(Duration(milliseconds: 1000 ~/ 1), (_) {
       onTimer();
     });
-  }
-
-  @override
-  stopScene() {
-    super.stopScene();
   }
 
   @override
@@ -41,7 +36,7 @@ class ExampleSceneLogic extends SceneLogic<ExampleSceneState> {
   }
 }
 
-class ExampleSceneRenderer extends SceneRenderer<ExampleSceneState> {
+class SimpleSceneRenderer extends SceneRenderer<SimpleSceneState> {
   static const screenHeight = 11;
   static const screenWidth = 40;
 
@@ -57,12 +52,7 @@ class ExampleSceneRenderer extends SceneRenderer<ExampleSceneState> {
   }
 
   @override
-  stopScene() {
-    super.stopScene();
-  }
-
-  @override
-  onSceneStateUpdated(ExampleSceneState state) {
+  onSceneStateUpdated(SimpleSceneState state) {
     screen
       ..clear()
       ..addText("fps: ${frameCounter.measureFps()}", 0, 0)

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' as io;
 import 'dart:isolate';
 
 import 'package:alphabet/engine/concurrency.dart';
@@ -49,10 +49,24 @@ class Scene<TLogic extends SceneLogic, TRenderer extends SceneRenderer> {
   }
 
   static runInput(SendPort sendPort, ReceivePort receivePort) {
-    stdin.lineMode = false;
-    stdin.echoMode = false;
-    stdin.listen((code) {
-      sendPort.send(KeyCodeParser.parse(code));
-    });
+    io.stdin
+      ..lineMode = false
+      ..echoMode = false
+      ..listen((code) => sendPort.send(KeyCodeParser.parse(code)));
+  }
+}
+
+abstract class SceneCoordinator {
+  Scene currentScene;
+
+  start(SceneLogic logic, SceneRenderer renderer) {
+    currentScene?.stopScene();
+    currentScene = Scene(logic, renderer);
+    currentScene.startScene();
+  }
+
+  exit() {
+    currentScene?.stopScene();
+    io.exit(0);
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class KeyCodeParser {
+  static const ESC = "ESC";
   static const ENTER = "ENTER";
   static const F1 = "F1";
   static const F2 = "F2";
@@ -24,6 +25,7 @@ class KeyCodeParser {
   static const RIGHT = "RIGHT";
 
   static var _keyCodes = {
+    [27] : ESC,
     [10] : ENTER,
     [27, 79, 80] : F1,
     [27, 79, 81] : F2,
