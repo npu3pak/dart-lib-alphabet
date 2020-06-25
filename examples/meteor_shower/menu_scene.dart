@@ -5,10 +5,10 @@ import 'meteor_shower.dart';
 
 class MenuSceneState extends SceneState {
   MenuSceneState(GlobalState global) {
-    maxScore = global.maxScore;
+    highScore = global.highScore;
   }
 
-  int maxScore;
+  int highScore;
   var items = ["new game", "exit"];
   var selectedItemIndex = 0;
 }
@@ -48,7 +48,7 @@ class MenuSceneLogic extends SceneLogic<MenuSceneState> {
     } else {
       state.selectedItemIndex--;
     }
-    stateStreamController.add(state);
+    notifyStateChanged();
   }
 
   selectNextItem() {
@@ -57,7 +57,7 @@ class MenuSceneLogic extends SceneLogic<MenuSceneState> {
     } else {
       state.selectedItemIndex++;
     }
-    stateStreamController.add(state);
+    notifyStateChanged();
   }
 
   activateSelectedItem() {
@@ -78,6 +78,10 @@ class MenuSceneLogic extends SceneLogic<MenuSceneState> {
   exit() {
     onExit();
   }
+
+  notifyStateChanged() {
+    stateStreamController.add(state);
+  }
 }
 
 class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
@@ -89,7 +93,7 @@ class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
   @override
   onSceneStateUpdated(MenuSceneState state) {
     screen.clear();
-    screen.addText("Score: ${state.maxScore}", 0, 0);
+    screen.addText("high score: ${state.highScore}", 0, 0);
     
     for (var i=0; i<state.items.length; i++) {
       var text = i == state.selectedItemIndex

@@ -4,7 +4,7 @@ import 'game_scene.dart';
 import 'menu_scene.dart';
 
 class GlobalState {
-  var maxScore = 0;
+  var highScore = 0;
 }
 
 class SceneCoordinator extends abc.SceneCoordinator {
