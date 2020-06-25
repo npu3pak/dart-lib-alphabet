@@ -124,7 +124,7 @@ class GameSceneRenderer extends SceneRenderer<GameSceneState> {
     for(var meteor in state.meteors) {
       screen.addText(meteor.letter, meteor.x, meteor.y);
     }
-    const ground = "========================================";
+    const ground = "================================================================================";
     screen.addTile(ground, 0, Constants.maxY);
     screen.printValue();
   }

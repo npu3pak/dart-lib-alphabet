@@ -93,7 +93,11 @@ class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
   @override
   onSceneStateUpdated(MenuSceneState state) {
     screen.clear();
-    screen.addText("high score: ${state.highScore}", 0, 0);
+    screen.addTile("#", 0, 0);
+    screen.addTile("#", Constants.screenWidth - 1, 0);
+    screen.addTile("#", 0, Constants.screenHeight - 1);
+    screen.addTile("#", Constants.screenWidth - 1, Constants.screenHeight - 1);
+    screen.addText("high score: ${state.highScore}", 0, 1);
     
     for (var i=0; i<state.items.length; i++) {
       var text = i == state.selectedItemIndex

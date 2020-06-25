@@ -1,6 +1,6 @@
 class Constants {
-  static const screenHeight = 11;
-  static const screenWidth = 40;
+  static const screenHeight = 24;
+  static const screenWidth = 80;
 
   static const int maxX = Constants.screenWidth;
   static const int minY = 2;
