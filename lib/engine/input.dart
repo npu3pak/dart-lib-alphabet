@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 class KeyCode {
@@ -26,32 +27,49 @@ class KeyCode {
 }
 
 class KeyCodeParser {
-
   static var _keyCodes = {
-    [27] : KeyCode.ESC,
-    [10] : KeyCode.ENTER,
-    [27, 79, 80] : KeyCode.F1,
-    [27, 79, 81] : KeyCode.F2,
-    [27, 79, 82] : KeyCode.F3,
-    [27, 79, 83] : KeyCode.F4,
-    [27, 91, 49, 53, 126] : KeyCode.F5,
-    [27, 91, 49, 55, 126] : KeyCode.F6,
-    [27, 91, 49, 56, 126] : KeyCode.F7,
-    [27, 91, 49, 57, 126] : KeyCode.F8,
-    [27, 91, 50, 48, 126] : KeyCode.F9,
-    [27, 91, 50, 49, 126] : KeyCode.F10,
-    [27, 91, 50, 51, 126] : KeyCode.F11,
-    [27, 91, 50, 52, 126] : KeyCode.F12,
-    [127] : KeyCode.BACKSPACE,
-    [9] : KeyCode.TAB,
-    [32] : KeyCode.SPACE,
-    [27, 91, 65] : KeyCode.UP,
-    [27, 91, 66] : KeyCode.DOWN,
-    [27, 91, 68] : KeyCode.LEFT,
-    [27, 91, 67] : KeyCode.RIGHT,
+    [27]: KeyCode.ESC,
+    [10]: KeyCode.ENTER,
+    [27, 79, 80]: KeyCode.F1,
+    [27, 79, 81]: KeyCode.F2,
+    [27, 79, 82]: KeyCode.F3,
+    [27, 79, 83]: KeyCode.F4,
+    [27, 91, 49, 53, 126]: KeyCode.F5,
+    [27, 91, 49, 55, 126]: KeyCode.F6,
+    [27, 91, 49, 56, 126]: KeyCode.F7,
+    [27, 91, 49, 57, 126]: KeyCode.F8,
+    [27, 91, 50, 48, 126]: KeyCode.F9,
+    [27, 91, 50, 49, 126]: KeyCode.F10,
+    [27, 91, 50, 51, 126]: KeyCode.F11,
+    [27, 91, 50, 52, 126]: KeyCode.F12,
+    [127]: KeyCode.BACKSPACE,
+    [9]: KeyCode.TAB,
+    [32]: KeyCode.SPACE,
+    [27, 91, 65]: KeyCode.UP,
+    [27, 91, 66]: KeyCode.DOWN,
+    [27, 91, 68]: KeyCode.LEFT,
+    [27, 91, 67]: KeyCode.RIGHT,
   }.map((key, value) => MapEntry("$key", value));
 
   static String parse(Uint8List code) {
     return _keyCodes["$code"] ?? utf8.decode(code);
+  }
+}
+
+class KeyListener {
+  Function(String keyCode) onKeyPressed;
+
+  static var _instance = KeyListener._();
+  static KeyListener getInstance() => _instance;
+
+  KeyListener._() {
+    stdin
+      ..lineMode = false
+      ..echoMode = false
+      ..listen((code) {
+        if (onKeyPressed != null) {
+          onKeyPressed(KeyCodeParser.parse(code));
+        }
+      });
   }
 }

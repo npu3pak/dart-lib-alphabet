@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:alphabet/alphabet.dart';
 
 main() async {
-  var scene = Scene(SimpleSceneLogic(), SimpleSceneRenderer());
-  await scene.startScene();
+  var coordinator = SceneCoordinator();
+  await coordinator.start(SimpleSceneLogic(), SimpleSceneRenderer());
 }
 
 class SimpleSceneState extends SceneState {
@@ -58,7 +58,7 @@ class SimpleSceneRenderer extends SceneRenderer<SimpleSceneState> {
       ..clear()
       ..addText("fps: ${frameCounter.measureFps()}", 0, 0)
       ..addText("key: ${state.lastKeyCode}", 0, 1)
-      ..addText("utc: ${state.lastTime.toUtc()}", 0, 2)
+      ..addText("utc: ${state.lastTime?.toUtc()}", 0, 2)
       ..addBuffer(enemy, 0, 4)
       ..addBuffer(enemy, 7, 5)
       ..addBuffer(enemy, 14, 4)
