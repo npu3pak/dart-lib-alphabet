@@ -45,6 +45,7 @@ class Scene<TLogic extends SceneLogic, TRenderer extends SceneRenderer> {
   stopScene() {
     renderer.stopScene();
     logic.stopScene();
+    inputEnv.receivePort.close();
     inputEnv.isolate.kill();
   }
 
@@ -59,10 +60,10 @@ class Scene<TLogic extends SceneLogic, TRenderer extends SceneRenderer> {
 abstract class SceneCoordinator {
   Scene currentScene;
 
-  start(SceneLogic logic, SceneRenderer renderer) {
+  start(SceneLogic logic, SceneRenderer renderer) async {
     currentScene?.stopScene();
     currentScene = Scene(logic, renderer);
-    currentScene.startScene();
+    await currentScene.startScene();
   }
 
   exit() {

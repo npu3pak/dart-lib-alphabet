@@ -4,7 +4,7 @@ import 'package:alphabet/alphabet.dart';
 
 main() async {
   var scene = Scene(SimpleSceneLogic(), SimpleSceneRenderer());
-  scene.startScene();
+  await scene.startScene();
 }
 
 class SimpleSceneState extends SceneState {
@@ -19,6 +19,7 @@ class SimpleSceneLogic extends SceneLogic<SimpleSceneState> {
   startScene() {
     super.startScene();
 
+    stateStreamController.add(state);
     Timer.periodic(Duration(milliseconds: 1000 ~/ 1), (_) {
       onTimer();
     });
