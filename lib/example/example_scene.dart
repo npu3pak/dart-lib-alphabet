@@ -1,6 +1,11 @@
-import 'package:alphabet/engine/rendering.dart';
-import 'package:alphabet/engine/scene.dart';
-import 'package:alphabet/engine/utils.dart';
+import 'dart:async';
+
+import 'package:alphabet/alphabet.dart';
+
+main() async {
+  var scene = Scene(ExampleSceneLogic(), ExampleSceneRenderer());
+  scene.startScene();
+}
 
 class ExampleSceneState extends SceneState {
   String lastKeyCode;
@@ -13,6 +18,10 @@ class ExampleSceneLogic extends SceneLogic<ExampleSceneState> {
   @override
   startScene() {
     super.startScene();
+
+    Timer.periodic(Duration(milliseconds: 1000 ~/ 1), (_) {
+      onTimer();
+    });
   }
 
   @override
@@ -26,9 +35,8 @@ class ExampleSceneLogic extends SceneLogic<ExampleSceneState> {
     stateStreamController.add(state);
   }
 
-  @override
-  onTimeUpdated(DateTime time) {
-    state.lastTime = time;
+  onTimer() {
+    state.lastTime = DateTime.now();
     stateStreamController.add(state);
   }
 }
@@ -61,8 +69,8 @@ class ExampleSceneRenderer extends SceneRenderer<ExampleSceneState> {
       ..addText("key: ${state.lastKeyCode}", 0, 1)
       ..addText("utc: ${state.lastTime.toUtc()}", 0, 2)
       ..addBuffer(enemy, 0, 4)
-      ..addBuffer(enemy, 7, 3)
-      ..addBuffer(enemy, 14, 1)
+      ..addBuffer(enemy, 7, 5)
+      ..addBuffer(enemy, 14, 4)
       ..printValue();
   }
 }
