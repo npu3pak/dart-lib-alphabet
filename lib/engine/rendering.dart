@@ -68,7 +68,14 @@ class ScreenBuffer {
     }
   }
 
+  
+
   printValue() {
+    print(this);
+  }
+
+  @override
+  String toString() {
     var buf = StringBuffer();
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
@@ -76,6 +83,6 @@ class ScreenBuffer {
       }
       buf.write('\n');
     }
-    print(buf);
+    return buf.toString();
   }
 }
