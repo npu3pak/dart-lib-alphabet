@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 class ScreenBuffer {
   static const whiteTile = 'W';
@@ -68,7 +69,15 @@ class ScreenBuffer {
     }
   }
 
-  
+  addCircle(String char, int a, int b, int r) {
+    for (var x = a - r; x < a + r + 1; x++) {
+      var y1 = b + sqrt(pow(r, 2) - pow(x - a, 2));
+      var y2 = b - sqrt(pow(r, 2) - pow(x - a, 2));
+      print("x: $x, y1: $y1, y2: $y2");
+      addTile(char, x, y1.floor());
+      addTile(char, x, y2.ceil());
+    }
+  }
 
   printValue() {
     print(this);
