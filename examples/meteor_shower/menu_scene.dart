@@ -102,11 +102,11 @@ class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
     screen.addHorizontalLine("=", 0, maxX, maxY);
     screen.addText("high score: ${state.highScore}", 3, 1);
 
-    screen.addCircle("0", 2, 10, 0);
-    screen.addCircle("1", 7, 10, 1);
-    screen.addCircle("2", 17, 10, 2);
-    screen.addCircle("3", 33, 10, 3);
-    screen.addCircle("4", 54, 10, 4);
+    screen.addCircle("0", 2, 10, 0, filled: true);
+    screen.addCircle("1", 7, 10, 1, filled: true);
+    screen.addCircle("2", 17, 10, 2, filled: true);
+    screen.addCircle("3", 33, 10, 3, filled: true);
+    screen.addCircle("4", 54, 10, 4, filled: true);
     
     for (var i=0; i<state.items.length; i++) {
       var text = i == state.selectedItemIndex

@@ -69,17 +69,21 @@ class ScreenBuffer {
     }
   }
 
-  addCircle(String char, int a, int b, int r, {double ratio = 1.3}) {
-    for (var x = a - r; x < a + r + 1; x++) {
-      var y1 = b + sqrt(pow(r, 2) - pow(x - a, 2));
-      var y2 = b - sqrt(pow(r, 2) - pow(x - a, 2));
+  addCircle(String char, int a, int b, int r,
+      {double ratio = 1.4, bool filled = false}) {
+    for (var y = b - r; y < b + r + 1; y++) {
+      var x1 = a + sqrt(pow(r, 2) - pow(y - b, 2));
+      var x2 = a - sqrt(pow(r, 2) - pow(y - b, 2));
 
-      var cx = x < a
-          ? (x - (a - x) * ratio).floor()
-          : x > a ? (x + (x - a) * ratio).ceil() : x;
+      var cx1 = (x2 + (x2 - a) * ratio).round();
+      var cx2 = (x1 - (a - x1) * ratio).round();
 
-      addTile(char, cx, y1.floor());
-      addTile(char, cx, y2.ceil());
+      if (filled) {
+        addHorizontalLine(char, cx1, cx2, y);
+      } else {
+        addTile(char, cx1, y);
+        addTile(char, cx2, y);
+      }
     }
   }
 
