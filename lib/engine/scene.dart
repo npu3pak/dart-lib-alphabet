@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
-import 'dart:isolate';
 
-import 'package:alphabet/engine/concurrency.dart';
 import 'package:alphabet/engine/input.dart';
 
 abstract class SceneState {}
@@ -23,13 +21,11 @@ abstract class SceneRenderer<T extends SceneState> {
 class Scene<TLogic extends SceneLogic, TRenderer extends SceneRenderer> {
   TLogic logic;
   TRenderer renderer;
-  IsolateEnvironment inputEnv;
+  KeyListener keyListener;
 
-  Scene(this.logic, this.renderer);
+  Scene(this.logic, this.renderer, this.keyListener);
 
   startScene() async {
-    inputEnv = await IsolateEnvironment.spawn(runInput);
-
     logic.startScene();
     renderer.startScene();
 
@@ -37,32 +33,24 @@ class Scene<TLogic extends SceneLogic, TRenderer extends SceneRenderer> {
       renderer.onSceneStateUpdated(state);
     });
 
-    inputEnv.receivePort.listen((key) {
+    keyListener.onKeyPressed = (key) {
       logic.onKeyPressed(key);
-    });
+    };
   }
 
   stopScene() {
     renderer.stopScene();
     logic.stopScene();
-    inputEnv.isolate.kill();
-  }
-
-  static runInput(SendPort sendPort, ReceivePort receivePort) {
-    io.stdin
-      ..lineMode = false
-      ..echoMode = false
-      ..listen((code) => sendPort.send(KeyCodeParser.parse(code)));
   }
 }
 
-abstract class SceneCoordinator {
+class SceneCoordinator {
   Scene currentScene;
 
-  start(SceneLogic logic, SceneRenderer renderer) {
+  start(SceneLogic logic, SceneRenderer renderer) async {
     currentScene?.stopScene();
-    currentScene = Scene(logic, renderer);
-    currentScene.startScene();
+    currentScene = Scene(logic, renderer, KeyListener.getInstance());
+    await currentScene.startScene();
   }
 
   exit() {
