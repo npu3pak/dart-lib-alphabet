@@ -64,14 +64,10 @@ class GameSceneLogic extends SceneLogic<GameSceneState> {
 
   onSpawnTimer(_) {
     var x = Random().nextInt(Constants.maxX);
-    var meteor = Meteor(getRandomChar(), x, Constants.minY);
+    var char = Random().nextChar(Constants.chars);
+    var meteor = Meteor(char, x, Constants.minY);
     state.meteors.add(meteor);
     notifyStateChanged();
-  }
-
-  String getRandomChar() {
-    var index = Random().nextInt(Constants.chars.length);
-    return Constants.chars[index];
   }
 
   onMoveTimer(_) {
@@ -124,8 +120,7 @@ class GameSceneRenderer extends SceneRenderer<GameSceneState> {
     for(var meteor in state.meteors) {
       screen.addText(meteor.letter, meteor.x, meteor.y);
     }
-    const ground = "================================================================================";
-    screen.addTile(ground, 0, Constants.maxY);
+    screen.addHorizontalLine("=", 0, Constants.maxX, Constants.maxY);
     screen.printValue();
   }
 }

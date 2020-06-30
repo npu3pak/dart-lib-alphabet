@@ -20,6 +20,15 @@ class ScreenBuffer {
     }
   }
 
+  ScreenBuffer.fromString(String str, {this.width, this.height}) {
+    clear();
+    var lines = str.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      addTile(line, 0, i);
+    }
+  }
+
   clear() {
     value = List.generate(width, (_) => List.generate(height, (_) => ' '));
   }
@@ -44,6 +53,18 @@ class ScreenBuffer {
   addText(String text, x, y) {
     for (var i = 0; i < text.length; i++) {
       value[x + i][y] = text[i];
+    }
+  }
+
+  addHorizontalLine(String char, int xMin, int xMax, int y) {
+    var length = xMax - xMin + 1;
+    var tile = char * length;
+    addTile(tile, xMin, y);
+  }
+
+  addVerticalLine(String char, int x, int yMin, int yMax) {
+    for (var yi = yMin; yi <= yMax; yi++) {
+      addTile(char, x, yi);
     }
   }
 
