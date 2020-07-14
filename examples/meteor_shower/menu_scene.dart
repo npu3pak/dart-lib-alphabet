@@ -31,12 +31,15 @@ class MenuSceneLogic extends SceneLogic<MenuSceneState> {
   onKeyPressed(String keyCode) {
     switch (keyCode) {
       case KeyCode.UP:
+      case "w":
         selectPreviousItem();
         break;
       case KeyCode.DOWN:
+      case "s":
         selectNextItem();
         break;
       case KeyCode.ENTER:
+      case KeyCode.SPACE:
         activateSelectedItem();
         break;
     }
@@ -86,9 +89,7 @@ class MenuSceneLogic extends SceneLogic<MenuSceneState> {
 
 class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
   ScreenBuffer screen = ScreenBuffer(
-      width: Constants.screenWidth,
-      height: Constants.screenHeight
-  );
+      width: Constants.screenWidth, height: Constants.screenHeight);
 
   @override
   onSceneStateUpdated(MenuSceneState state) {
@@ -107,8 +108,8 @@ class MenuSceneRenderer extends SceneRenderer<MenuSceneState> {
     screen.addCircle("2", 17, 10, 2, filled: true);
     screen.addCircle("3", 33, 10, 3, filled: true);
     screen.addCircle("4", 54, 10, 4, filled: true);
-    
-    for (var i=0; i<state.items.length; i++) {
+
+    for (var i = 0; i < state.items.length; i++) {
       var text = i == state.selectedItemIndex
           ? state.items[i].toUpperCase()
           : state.items[i];
