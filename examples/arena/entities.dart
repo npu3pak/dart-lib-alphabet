@@ -8,6 +8,7 @@ class BattleState extends SceneState {
   var attacksTime = Map<int, int>();
   var cooldowns = Map<int, int>();
   var lastMessage = "";
+  var playerHealth = 1000;
 }
 
 class Enemy {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:alphabet/alphabet.dart';
@@ -11,26 +12,66 @@ main() async {
 }
 
 class BattleSceneLogic extends SceneLogic<BattleState> {
-  final state = BattleState();
+  final _enemiesCount = 3;
+  final _state = BattleState();
+  Timer _timer;
 
   @override
   startScene() {
     super.startScene();
     _initState();
-    stateStreamController.add(state);
+    _timer = Timer.periodic(Duration(seconds: 1), _onTimer);
+    stateStreamController.add(_state);
   }
 
   _initState() {
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < _enemiesCount; i++) {
       _spawnEnemy(i);
     }
   }
 
   _spawnEnemy(int position) {
-    final enemy = Random().randomItem(GameTable.allEnemies);
+    final enemy = Random().randomItem(GameRoster.allEnemies);
     final cooldown = Random().randomItem(enemy.availableAttacks).cooldown;
-    state.enemies[position] = enemy;
-    state.cooldowns[position] = cooldown;
+    _state.enemies[position] = enemy;
+    _state.cooldowns[position] = cooldown;
+  }
+
+  _onTimer(Timer timer) {
+    for (var i = 0; i < _enemiesCount; i++) {
+      if (_state.enemies.containsKey(i)) {
+        if (_state.cooldowns[i] == 0) {
+          _spawnAttack(i);
+        } else {
+          _state.cooldowns[i]--;
+        }
+
+        if (_state.attacksTime.containsKey(i)) {
+          if (_state.attacksTime[i] == 0) {
+            _attackPlayer(i);
+          } else {
+            _state.attacksTime[i]--;
+          }
+        }
+      }
+    }
+    stateStreamController.add(_state);
+  }
+
+  _spawnAttack(int position) {
+    final enemy = _state.enemies[position];
+    final attackFactory = Random().randomItem(enemy.availableAttacks);
+    final symbol = Random().nextChar(Characters.lowerCased);
+    _state.attacks[position] = attackFactory.getAttack(symbol);
+    _state.attacksTime[position] = attackFactory.attackTime;
+    _state.cooldowns[position] = attackFactory.cooldown;
+  }
+
+  _attackPlayer(int position) {
+    final attack = _state.attacks[position];
+    _state.attacks.remove(position);
+    _state.attacksTime.remove(position);
+    _state.playerHealth -= attack.damage;
   }
 
   @override
@@ -39,16 +80,16 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
       _removeDeadEnemies();
 
       if (_checkWinCondition()) {
-        state.lastMessage = "You win!";
+        _state.lastMessage = "You win!";
       }
 
-      stateStreamController.add(state);
+      stateStreamController.add(_state);
     }
   }
 
   bool _hit(String symbol) {
     var isSuccess = false;
-    state.enemies.forEach((_, enemy) {
+    _state.enemies.forEach((_, enemy) {
       if (enemy.hit(symbol)) {
         isSuccess = true;
       }
@@ -56,10 +97,16 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     return isSuccess;
   }
 
-  bool _checkWinCondition() => state.enemies.length == 0;
+  bool _checkWinCondition() => _state.enemies.length == 0;
 
   void _removeDeadEnemies() {
-    state.enemies.removeWhere((_, enemy) => enemy.isDead);
+    _state.enemies.removeWhere((_, enemy) => enemy.isDead);
+  }
+
+  @override
+  stopScene() {
+    _timer.cancel();
+    super.stopScene();
   }
 }
 
@@ -77,7 +124,24 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
           ScreenBuffer.fromString(enemy.bodySprite, width: 30, height: 10);
       screen.addBuffer(enemyBuffer, i * spriteWidth, spriteY);
     }
+    for (var i in state.attacks.keys) {
+      var attack = state.attacks[i];
+      final time = state.attacksTime[i];
+      final radius = _getAttackRadius(attack, time);
+      var x = i * spriteWidth + spriteWidth / 2;
+      var y = screenHeight / 2;
+      screen.addCircle(attack.symbol, x.round(), y.round(), radius,
+          filled: true);
+    }
     screen.addText(state.lastMessage, 1, 1);
     screen.printValue();
+  }
+
+  int _getAttackRadius(EnemyAttack attack, int time) {
+    final minRadius = attack.startRadius;
+    final maxRadius = attack.endRadius;
+    final timeProportion = (attack.attackTime - time) / attack.attackTime;
+    final radius = minRadius + (maxRadius - minRadius) * timeProportion;
+    return radius.ceil();
   }
 }

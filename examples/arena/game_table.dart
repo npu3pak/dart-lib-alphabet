@@ -1,7 +1,7 @@
 import 'entities.dart';
 import 'resources.dart';
 
-class GameTable {
+class GameRoster {
   static final weakAttack = EnemyAttackFabric(
     attackTime: 2,
     damage: 1,
@@ -33,13 +33,13 @@ class GameTable {
   );
 
   static final mediumHuman = Enemy(
-    sprite: Sprites.human1,
+    sprite: Sprites.human2,
     symbolsCount: 8,
     availableAttacks: [weakAttack, mediumAttack],
   );
 
   static final strongHuman = Enemy(
-    sprite: Sprites.human1,
+    sprite: Sprites.human3,
     symbolsCount: 14,
     availableAttacks: [weakAttack, mediumAttack, strongAttack],
   );

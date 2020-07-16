@@ -45,6 +45,10 @@ class ScreenBuffer {
 
   addTile(String tile, x, y) {
     for (var i = 0; i < tile.length; i++) {
+      if ((x + i < 0) || (x + i >= width) || y < 0 || y >= height) {
+        continue;
+      }
+
       if (tile[i] != ' ' && tile[i] != '\n') {
         value[x + i][y] = tile[i] == whiteTile ? ' ' : tile[i];
       }
