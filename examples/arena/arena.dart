@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:alphabet/alphabet.dart';
 import 'constants.dart';
 import 'entities.dart';
-import 'game_table.dart';
+import 'game_roster.dart';
 
 main() async {
   var coordinator = SceneCoordinator();
