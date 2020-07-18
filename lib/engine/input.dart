@@ -64,8 +64,8 @@ class KeyListener {
 
   KeyListener._() {
     stdin
-      ..lineMode = false
       ..echoMode = false
+      ..lineMode = false
       ..listen((code) {
         if (onKeyPressed != null) {
           onKeyPressed(KeyCodeParser.parse(code));
