@@ -4,7 +4,7 @@ import 'resources.dart';
 class GameRoster {
   static final weakAttack = EnemyAttackFabric(
     attackTime: 1000,
-    damage: 1,
+    damage: 5,
     startRadius: 1,
     endRadius: 3,
     cooldown: 2000,
@@ -12,7 +12,7 @@ class GameRoster {
 
   static final mediumAttack = EnemyAttackFabric(
     attackTime: 1000,
-    damage: 2,
+    damage: 8,
     startRadius: 1,
     endRadius: 4,
     cooldown: 2000,
@@ -20,7 +20,7 @@ class GameRoster {
 
   static final strongAttack = EnemyAttackFabric(
     attackTime: 1000,
-    damage: 4,
+    damage: 12,
     startRadius: 1,
     endRadius: 6,
     cooldown: 2000,
@@ -49,4 +49,6 @@ class GameRoster {
   static final attackTimerInterval = 100;
 
   static final maxAdditionalCooldown = 2000;
+
+  static final playerHealth = 100;
 }

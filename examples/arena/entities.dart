@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:alphabet/alphabet.dart';
 import 'constants.dart';
+import 'game_table.dart';
 
 class BattleState extends SceneState {
   var enemies = Map<int, Enemy>();
@@ -8,7 +9,7 @@ class BattleState extends SceneState {
   var attacksTime = Map<int, double>();
   var cooldowns = Map<int, double>();
   var lastMessage = "";
-  var playerHealth = 1000;
+  var playerHealth = GameRoster.playerHealth;
 }
 
 class Enemy {

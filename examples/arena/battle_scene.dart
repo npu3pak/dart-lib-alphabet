@@ -77,6 +77,10 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     _state.attacks.remove(position);
     _state.attacksTime.remove(position);
     _state.playerHealth -= attack.damage;
+
+    if (_checkLooseCondition()) {
+      _state.lastMessage = "You loose :(";
+    }
   }
 
   @override
@@ -120,8 +124,13 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
 
   bool _checkWinCondition() => _state.enemies.length == 0;
 
+  bool _checkLooseCondition() => _state.playerHealth <= 0;
+
   void _removeDeadEnemies() {
     _state.enemies.removeWhere((_, enemy) => enemy.isDead);
+    _state.attacks.removeWhere((position, value) {
+      return !_state.enemies.containsKey(position);
+    });
   }
 
   @override
@@ -154,7 +163,8 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
       screen.addCircle(attack.symbol, x.round(), y.round(), radius,
           filled: true);
     }
-    screen.addText(state.lastMessage, 1, 1);
+    screen.addText("HP: ${state.playerHealth}", 1, 1);
+    screen.addText(state.lastMessage, 1, 2);
     screen.printValue();
   }
 
