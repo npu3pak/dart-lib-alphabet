@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:alphabet/alphabet.dart';
 import 'constants.dart';
-import 'game_table.dart';
+import 'game_roster.dart';
 
 enum GameState { progress, lose, win }
 
