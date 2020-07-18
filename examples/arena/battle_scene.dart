@@ -81,7 +81,7 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
 
   @override
   onKeyPressed(String keyCode) {
-    if (_hit(keyCode)) {
+    if (_blockAttack(keyCode) || _hit(keyCode)) {
       _removeDeadEnemies();
 
       if (_checkWinCondition()) {
@@ -94,11 +94,27 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
 
   bool _hit(String symbol) {
     var isSuccess = false;
-    _state.enemies.forEach((_, enemy) {
+    _state.enemies.forEach((position, enemy) {
       if (enemy.hit(symbol)) {
         isSuccess = true;
       }
     });
+    return isSuccess;
+  }
+
+  bool _blockAttack(String symbol) {
+    var isSuccess = false;
+    var blockedPositions = [];
+    _state.attacks.forEach((position, attack) {
+      if (attack.symbol == symbol) {
+        blockedPositions.add(position);
+        isSuccess = true;
+      }
+    });
+    for (var position in blockedPositions) {
+      _state.attacks.remove(position);
+      _state.attacksTime.remove(position);
+    }
     return isSuccess;
   }
 
