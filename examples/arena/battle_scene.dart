@@ -33,7 +33,7 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
   _spawnEnemy(int position) {
     final enemy = Random().randomItem(GameRoster.allEnemies);
     final cooldown = Random().randomItem(enemy.availableAttacks).cooldown;
-    _state.enemies[position] = enemy;
+    _state.enemies[position] = enemy.getEnemy();
     _state.cooldowns[position] =
         cooldown + Random().nextInt(GameRoster.maxAdditionalCooldown);
   }

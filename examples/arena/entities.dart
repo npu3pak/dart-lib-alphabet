@@ -16,11 +16,9 @@ class BattleState extends SceneState {
 
 class Enemy {
   String bodySprite;
-  List<EnemyAttackFabric> availableAttacks;
+  final List<EnemyAttackFabric> availableAttacks;
 
-  Enemy({String sprite, int symbolsCount, this.availableAttacks}) {
-    bodySprite = _getRandomizedSprite(sprite, symbolsCount);
-  }
+  Enemy(this.bodySprite, this.availableAttacks);
 
   bool hit(String symbol) {
     if (bodySprite.contains(symbol)) {
@@ -34,6 +32,19 @@ class Enemy {
   bool get isDead {
     var regexp = RegExp("[^\\s]+");
     return !regexp.hasMatch(bodySprite);
+  }
+}
+
+class EnemyFabric {
+  final String sprite;
+  final int symbolsCount;
+  final List<EnemyAttackFabric> availableAttacks;
+
+  EnemyFabric({this.sprite, this.symbolsCount, this.availableAttacks});
+
+  Enemy getEnemy() {
+    final bodySprite = _getRandomizedSprite(sprite, symbolsCount);
+    return Enemy(bodySprite, availableAttacks);
   }
 
   static String _getRandomizedSprite(String sprite, int symbolsCount) {

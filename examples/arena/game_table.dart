@@ -26,19 +26,19 @@ class GameRoster {
     cooldown: 2000,
   );
 
-  static final weakHuman = Enemy(
+  static final weakHuman = EnemyFabric(
     sprite: Sprites.human1,
     symbolsCount: 4,
     availableAttacks: [weakAttack],
   );
 
-  static final mediumHuman = Enemy(
+  static final mediumHuman = EnemyFabric(
     sprite: Sprites.human2,
     symbolsCount: 8,
     availableAttacks: [weakAttack, mediumAttack],
   );
 
-  static final strongHuman = Enemy(
+  static final strongHuman = EnemyFabric(
     sprite: Sprites.human3,
     symbolsCount: 14,
     availableAttacks: [weakAttack, mediumAttack, strongAttack],
