@@ -8,7 +8,14 @@ import 'game_table.dart';
 
 main() async {
   var coordinator = SceneCoordinator();
-  await coordinator.start(BattleSceneLogic(), BattleSceneRenderer());
+  await coordinator.start(
+    BattleSceneLogic(),
+    BattleSceneRenderer(
+      onExit: () {
+        coordinator.exit();
+      },
+    ),
+  );
 }
 
 class BattleSceneLogic extends SceneLogic<BattleState> {
@@ -86,23 +93,6 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     }
   }
 
-  _switchState(state) {
-    if (state == GameState.progress) {
-      for (var i = 0; i < _enemiesCount; i++) {
-        _spawnEnemy(i);
-      }
-      _timer = Timer.periodic(
-        Duration(milliseconds: GameRoster.attackTimerInterval),
-        _onTimer,
-      );
-    } else {
-      _timer.cancel();
-      _timer = null;
-    }
-    _state.gameState = state;
-    stateStreamController.add(_state);
-  }
-
   bool _hit(String symbol) {
     var isSuccess = false;
     _state.enemies.forEach((position, enemy) {
@@ -140,6 +130,24 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     });
   }
 
+  _switchState(state) {
+    _state.gameState = state;
+    if (state == GameState.progress) {
+      _startGame();
+    }
+    stateStreamController.add(_state);
+  }
+
+  void _startGame() {
+    for (var i = 0; i < _enemiesCount; i++) {
+      _spawnEnemy(i);
+    }
+    _timer = Timer.periodic(
+      Duration(milliseconds: GameRoster.attackTimerInterval),
+      _onTimer,
+    );
+  }
+
   @override
   stopScene() {
     _timer.cancel();
@@ -148,11 +156,13 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
 }
 
 class BattleSceneRenderer extends SceneRenderer<BattleState> {
-  ScreenBuffer screen = ScreenBuffer(width: screenWidth, height: screenHeight);
+  final Function onExit;
+  final _screen = ScreenBuffer(width: screenWidth, height: screenHeight);
+
+  BattleSceneRenderer({this.onExit});
 
   @override
   onSceneStateUpdated(BattleState state) {
-    screen.clear();
     switch (state.gameState) {
       case GameState.progress:
         drawInProgress(state);
@@ -164,17 +174,17 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
         drawWin(state);
         break;
     }
-    screen.printValue();
   }
 
   drawInProgress(BattleState state) {
+    _screen.clear();
     const spriteWidth = 30;
     const spriteY = 3;
     for (var i in state.enemies.keys) {
       var enemy = state.enemies[i];
       var enemyBuffer =
           ScreenBuffer.fromString(enemy.bodySprite, width: 30, height: 10);
-      screen.addBuffer(enemyBuffer, i * spriteWidth, spriteY);
+      _screen.addBuffer(enemyBuffer, i * spriteWidth, spriteY);
     }
     for (var i in state.attacks.keys) {
       var attack = state.attacks[i];
@@ -182,18 +192,25 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
       final radius = _getAttackRadius(attack, time);
       var x = i * spriteWidth + spriteWidth / 2;
       var y = screenHeight / 2;
-      screen.addCircle(attack.symbol, x.round(), y.round(), radius,
+      _screen.addCircle(attack.symbol, x.round(), y.round(), radius,
           filled: true);
     }
-    screen.addText("HP: ${state.playerHealth}", 1, 1);
+    _screen.addText("HP: ${state.playerHealth}", 1, 1);
+    _screen.printValue();
   }
 
   drawLoose(BattleState state) {
-    screen.addText("You Lose :(", 1, 2);
+    _screen.clear();
+    _screen.addText("You Lose :(", 1, 2);
+    _screen.printValue();
+    onExit();
   }
 
   drawWin(BattleState state) {
-    screen.addText("You Win!", 1, 2);
+    _screen.clear();
+    _screen.addText("You Win!", 1, 2);
+    _screen.printValue();
+    onExit();
   }
 
   int _getAttackRadius(EnemyAttack attack, double time) {
