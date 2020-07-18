@@ -19,18 +19,8 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
   @override
   startScene() {
     super.startScene();
-    _initState();
-    _timer = Timer.periodic(
-      Duration(milliseconds: GameRoster.attackTimerInterval),
-      _onTimer,
-    );
-    stateStreamController.add(_state);
-  }
 
-  _initState() {
-    for (var i = 0; i < _enemiesCount; i++) {
-      _spawnEnemy(i);
-    }
+    _switchState(GameState.progress);
   }
 
   _spawnEnemy(int position) {
@@ -79,7 +69,7 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     _state.playerHealth -= attack.damage;
 
     if (_checkLooseCondition()) {
-      _state.lastMessage = "You loose :(";
+      _switchState(GameState.lose);
     }
   }
 
@@ -89,11 +79,28 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
       _removeDeadEnemies();
 
       if (_checkWinCondition()) {
-        _state.lastMessage = "You win!";
+        _switchState(GameState.win);
       }
 
       stateStreamController.add(_state);
     }
+  }
+
+  _switchState(state) {
+    if (state == GameState.progress) {
+      for (var i = 0; i < _enemiesCount; i++) {
+        _spawnEnemy(i);
+      }
+      _timer = Timer.periodic(
+        Duration(milliseconds: GameRoster.attackTimerInterval),
+        _onTimer,
+      );
+    } else {
+      _timer.cancel();
+      _timer = null;
+    }
+    _state.gameState = state;
+    stateStreamController.add(_state);
   }
 
   bool _hit(String symbol) {
@@ -146,6 +153,21 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
   @override
   onSceneStateUpdated(BattleState state) {
     screen.clear();
+    switch (state.gameState) {
+      case GameState.progress:
+        drawInProgress(state);
+        break;
+      case GameState.lose:
+        drawLoose(state);
+        break;
+      case GameState.win:
+        drawWin(state);
+        break;
+    }
+    screen.printValue();
+  }
+
+  drawInProgress(BattleState state) {
     const spriteWidth = 30;
     const spriteY = 3;
     for (var i in state.enemies.keys) {
@@ -164,8 +186,14 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
           filled: true);
     }
     screen.addText("HP: ${state.playerHealth}", 1, 1);
-    screen.addText(state.lastMessage, 1, 2);
-    screen.printValue();
+  }
+
+  drawLoose(BattleState state) {
+    screen.addText("You Lose :(", 1, 2);
+  }
+
+  drawWin(BattleState state) {
+    screen.addText("You Win!", 1, 2);
   }
 
   int _getAttackRadius(EnemyAttack attack, double time) {

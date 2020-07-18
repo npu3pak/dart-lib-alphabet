@@ -3,12 +3,14 @@ import 'package:alphabet/alphabet.dart';
 import 'constants.dart';
 import 'game_table.dart';
 
+enum GameState { progress, lose, win }
+
 class BattleState extends SceneState {
+  var gameState = GameState.progress;
   var enemies = Map<int, Enemy>();
   var attacks = Map<int, EnemyAttack>();
   var attacksTime = Map<int, double>();
   var cooldowns = Map<int, double>();
-  var lastMessage = "";
   var playerHealth = GameRoster.playerHealth;
 }
 
