@@ -3,27 +3,27 @@ import 'resources.dart';
 
 class GameRoster {
   static final weakAttack = EnemyAttackFabric(
-    attackTime: 2,
+    attackTime: 1000,
     damage: 1,
     startRadius: 1,
-    endRadius: 2,
-    cooldown: 4,
+    endRadius: 3,
+    cooldown: 2000,
   );
 
   static final mediumAttack = EnemyAttackFabric(
-    attackTime: 3,
+    attackTime: 1000,
     damage: 2,
     startRadius: 1,
-    endRadius: 3,
-    cooldown: 6,
+    endRadius: 4,
+    cooldown: 2000,
   );
 
   static final strongAttack = EnemyAttackFabric(
-    attackTime: 4,
+    attackTime: 1000,
     damage: 4,
     startRadius: 1,
-    endRadius: 4,
-    cooldown: 8,
+    endRadius: 6,
+    cooldown: 2000,
   );
 
   static final weakHuman = Enemy(
@@ -45,4 +45,8 @@ class GameRoster {
   );
 
   static final allEnemies = [weakHuman, mediumHuman, strongHuman];
+
+  static final attackTimerInterval = 100;
+
+  static final maxAdditionalCooldown = 2000;
 }

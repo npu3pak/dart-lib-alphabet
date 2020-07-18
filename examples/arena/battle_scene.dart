@@ -20,7 +20,10 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
   startScene() {
     super.startScene();
     _initState();
-    _timer = Timer.periodic(Duration(seconds: 1), _onTimer);
+    _timer = Timer.periodic(
+      Duration(milliseconds: GameRoster.attackTimerInterval),
+      _onTimer,
+    );
     stateStreamController.add(_state);
   }
 
@@ -34,23 +37,24 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     final enemy = Random().randomItem(GameRoster.allEnemies);
     final cooldown = Random().randomItem(enemy.availableAttacks).cooldown;
     _state.enemies[position] = enemy;
-    _state.cooldowns[position] = cooldown;
+    _state.cooldowns[position] =
+        cooldown + Random().nextInt(GameRoster.maxAdditionalCooldown);
   }
 
   _onTimer(Timer timer) {
     for (var i = 0; i < _enemiesCount; i++) {
       if (_state.enemies.containsKey(i)) {
-        if (_state.cooldowns[i] == 0) {
+        if (_state.cooldowns[i] <= 0) {
           _spawnAttack(i);
         } else {
-          _state.cooldowns[i]--;
+          _state.cooldowns[i] -= GameRoster.attackTimerInterval;
         }
 
         if (_state.attacksTime.containsKey(i)) {
-          if (_state.attacksTime[i] == 0) {
+          if (_state.attacksTime[i] <= 0) {
             _attackPlayer(i);
           } else {
-            _state.attacksTime[i]--;
+            _state.attacksTime[i] -= GameRoster.attackTimerInterval;
           }
         }
       }
@@ -64,7 +68,8 @@ class BattleSceneLogic extends SceneLogic<BattleState> {
     final symbol = Random().nextChar(Characters.lowerCased);
     _state.attacks[position] = attackFactory.getAttack(symbol);
     _state.attacksTime[position] = attackFactory.attackTime;
-    _state.cooldowns[position] = attackFactory.cooldown;
+    _state.cooldowns[position] = attackFactory.cooldown +
+        Random().nextInt(GameRoster.maxAdditionalCooldown);
   }
 
   _attackPlayer(int position) {
@@ -137,11 +142,11 @@ class BattleSceneRenderer extends SceneRenderer<BattleState> {
     screen.printValue();
   }
 
-  int _getAttackRadius(EnemyAttack attack, int time) {
+  int _getAttackRadius(EnemyAttack attack, double time) {
     final minRadius = attack.startRadius;
     final maxRadius = attack.endRadius;
     final timeProportion = (attack.attackTime - time) / attack.attackTime;
     final radius = minRadius + (maxRadius - minRadius) * timeProportion;
-    return radius.ceil();
+    return radius.round();
   }
 }

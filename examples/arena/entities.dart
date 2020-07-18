@@ -5,8 +5,8 @@ import 'constants.dart';
 class BattleState extends SceneState {
   var enemies = Map<int, Enemy>();
   var attacks = Map<int, EnemyAttack>();
-  var attacksTime = Map<int, int>();
-  var cooldowns = Map<int, int>();
+  var attacksTime = Map<int, double>();
+  var cooldowns = Map<int, double>();
   var lastMessage = "";
   var playerHealth = 1000;
 }
@@ -49,8 +49,8 @@ class Enemy {
 
 class EnemyAttack {
   final String symbol;
-  final int cooldownTime;
-  final int attackTime;
+  final double cooldownTime;
+  final double attackTime;
   final int damage;
   final int startRadius;
   final int endRadius;
@@ -70,8 +70,8 @@ class EnemyAttack {
 }
 
 class EnemyAttackFabric {
-  final int cooldown;
-  final int attackTime;
+  final double cooldown;
+  final double attackTime;
   final int damage;
   final int startRadius;
   final int endRadius;
