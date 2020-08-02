@@ -56,8 +56,8 @@ class AnimationSceneRenderer extends SceneRenderer<AnimationSceneState> {
   @override
   onSceneStateUpdated(AnimationSceneState state) {
     _screen.clear();
-    _screen.addText("Hello", 1, 1);
-    _animationController.add("demo1", Resources.animation, 30, 6, _screen);
+    _screen.addText("Hello", 0, 0);
+    _animationController.add("demo1", Resources.animation, 0, 1, _screen);
     if (state.isDemo2Visible) {
       _animationController.add("demo2", Resources.animation, 30, 8, _screen);
     }
