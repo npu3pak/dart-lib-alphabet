@@ -37,6 +37,13 @@ class ScreenBuffer {
   addBuffer(ScreenBuffer buffer, x, y) {
     for (var by = 0; by < buffer.height; by++) {
       for (var bx = 0; bx < buffer.width; bx++) {
+        if ((x + bx < 0) ||
+            (x + bx >= width) ||
+            y + by < 0 ||
+            y + by >= height) {
+          continue;
+        }
+
         var c = buffer.value[bx][by];
         addTile(c, x + bx, y + by);
       }
@@ -44,20 +51,30 @@ class ScreenBuffer {
   }
 
   addTile(String tile, x, y) {
-    for (var i = 0; i < tile.length; i++) {
-      if ((x + i < 0) || (x + i >= width) || y < 0 || y >= height) {
-        continue;
-      }
+    final lines = tile.split("\n");
+    for (int ly = 0; ly < lines.length; ly++) {
+      for (int lx = 0; lx < lines[ly].length; lx++) {
+        if ((x + lx < 0) ||
+            (x + lx >= width) ||
+            y + ly < 0 ||
+            y + ly >= height) {
+          continue;
+        }
 
-      if (tile[i] != ' ' && tile[i] != '\n') {
-        value[x + i][y] = tile[i] == whiteTile ? ' ' : tile[i];
+        final tile = lines[ly][lx];
+        if (tile != ' ' && tile != '\n') {
+          value[x + lx][y + ly] = tile == whiteTile ? ' ' : tile;
+        }
       }
     }
   }
 
   addText(String text, x, y) {
-    for (var i = 0; i < text.length; i++) {
-      value[x + i][y] = text[i];
+    for (var tx = 0; tx < text.length; tx++) {
+      if ((x + tx < 0) || (x + tx >= width)) {
+        continue;
+      }
+      value[x + tx][y] = text[tx];
     }
   }
 
